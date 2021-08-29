@@ -1,0 +1,72 @@
+@import "../../../styles/vars";
+
+.topblock {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+
+  @media only screen and (max-width: 900px) {
+    & {
+      font-size: 12px;
+    }
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &__header {
+    grid-row: 1;
+    display: flex;
+    gap: 3rem;
+
+    @media only screen and (max-width: 450px) {
+      & {
+        align-items: center;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .description {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__image {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+
+    @media only screen and (max-width: 900px) {
+      & {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  }
+
+  &__title {
+    font-size: 24px;
+
+    @media only screen and (max-width: 900px) {
+      & {
+        font-size: 20px;
+      }
+    }
+  }
+
+  &__description {
+    color: $medium-grey;
+  }
+
+  &__owner,
+  &__followers {
+    color: $medium-grey;
+
+    span {
+      color: white;
+    }
+  }
+}

@@ -1,0 +1,41 @@
+@import "../../../styles/vars";
+
+.search {
+  color: white;
+  display: flex;
+  flex-direction: column;
+
+  &__main {
+    // display: flex;
+    align-items: center;
+    min-height: 20px;
+
+    input {
+      padding: 0.5rem 1rem;
+      width: 100%;
+      border-radius: 12px;
+      border: none;
+    }
+    margin-bottom: 2rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    h2 {
+      color: #cecedc;
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    span {
+      background: #eee;
+      flex: 1 1;
+      height: 2px;
+      display: block;
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+  }
+}

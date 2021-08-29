@@ -1,0 +1,21 @@
+@import "../../../styles/vars";
+
+.notfound {
+  color: white;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  a {
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    background-color: $secondary-green;
+    color: white;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: bold;
+  }
+}

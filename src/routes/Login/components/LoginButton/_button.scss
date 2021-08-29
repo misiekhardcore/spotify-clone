@@ -1,0 +1,11 @@
+@import "../../../../styles/vars";
+
+.button {
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  background-color: $secondary-green;
+  color: white;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: bold;
+}
