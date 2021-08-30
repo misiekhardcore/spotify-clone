@@ -13,7 +13,7 @@ const trackSlice = createSlice({
   reducers: {
     setUri: (state, action) => ({ ...state, uri: action.payload }),
     setSong: (state, action) => {
-      if (action.payload.item.track)
+      if (action.payload.item?.track)
         return {
           ...state,
           ...action.payload.item.track,
@@ -28,7 +28,7 @@ const trackSlice = createSlice({
       };
     },
     setTrack: (state, action) => {
-      if (action.payload.item.track)
+      if (action.payload.item?.track)
         return {
           ...state,
           ...action.payload.item.track,

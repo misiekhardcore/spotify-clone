@@ -11,8 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import React, { useCallback, useState } from "react";
-import { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   usePlayerDevice,
@@ -27,14 +26,53 @@ import "./_player.scss";
 const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
   const token = "Bearer " + localStorage.getItem("token");
 
+  const [state, setState] = useState({
+    device: {
+      id: "",
+      is_active: true,
+      is_private_session: false,
+      is_restricted: false,
+      name: "",
+      type: "",
+      volume_percent: 49,
+    },
+    shuffle_state: false,
+    repeat_state: "off",
+    timestamp: 0,
+    context: null,
+    progress_ms: 0,
+    item: {
+      album: {
+        id: "",
+        images: [
+          {
+            url: "",
+          },
+        ],
+        name: "",
+        uri: "",
+      },
+      artists: [
+        {
+          name: "",
+          uri: "",
+        },
+      ],
+      duration_ms: 187973,
+      explicit: false,
+      is_local: false,
+      name: "",
+      track_number: 1,
+      type: "",
+      uri: "",
+    },
+    currently_playing_type: "track",
+    is_playing: true,
+  });
   // Read redux data
   const {
-    name = "",
+    name: name2 = "",
     idx = 0,
-    album: {
-      images: [{ url = "" }],
-    },
-    images: [{ url: url2 = "" }],
     uri,
     song = false,
   } = useSelector((state) => state.track);
@@ -42,14 +80,24 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
   // Player buttons state
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [repeating, setRepeating] = useState(0);
-  const [shuffled, setShuffled] = useState(false);
 
   // SDK Functions
   const player = useSpotifyPlayer();
   const device = usePlayerDevice();
   const webPlaybackSDKReady = useWebPlaybackSDKReady();
   const { device_id = "" } = device || {};
+
+  function getPlayerInfo() {
+    if (token)
+      axios
+        .get(config.api.baseUrl + "/me/player", {
+          headers: { authorization: token },
+        })
+        .then((res) => {
+          setState(res.data);
+        })
+        .catch((e) => console.error(e));
+  }
 
   // Seak track
   const seak = () => {
@@ -69,6 +117,7 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             },
           }
         )
+        .then(() => getPlayerInfo())
         .catch((e) => console.error(e));
   };
 
@@ -81,14 +130,7 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
           {},
           { headers: { authorization: token } }
         )
-        .catch((e) => console.error(e));
-      axios
-        .get(config.api.baseUrl + "/me/player", {
-          headers: { authorization: token },
-        })
-        .then((res) => {
-          dispatch(setTrack({ item: res.data.item, idx: idx - 1 }));
-        })
+        .then(() => getPlayerInfo())
         .catch((e) => console.error(e));
     }
   };
@@ -102,14 +144,7 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
           {},
           { headers: { authorization: token } }
         )
-        .catch((e) => console.error(e));
-      axios
-        .get(config.api.baseUrl + "/me/player", {
-          headers: { authorization: token },
-        })
-        .then((res) => {
-          dispatch(setTrack({ item: res.data.item, idx: idx - 1 }));
-        })
+        .then(() => getPlayerInfo())
         .catch((e) => console.error(e));
     }
   };
@@ -127,16 +162,16 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             },
             params: {
               state:
-                repeating === 1
+                state.repeat_mode === "off"
                   ? "track"
-                  : repeating === 2
+                  : state.repeat_mode === "track"
                   ? "context"
                   : "off",
             },
           }
         )
+        .then(() => getPlayerInfo())
         .catch((e) => console.error(e));
-    setRepeating(repeating + 1 >= 3 ? 0 : repeating + 1);
   };
 
   // Shuffle tracks
@@ -151,12 +186,12 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
               authorization: token,
             },
             params: {
-              state: !shuffled,
+              state: !state.shuffle,
             },
           }
         )
+        .then(() => getPlayerInfo())
         .catch((e) => console.error(e));
-    setShuffled(!shuffled);
   };
 
   // Play tarck
@@ -171,13 +206,14 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             : { context_uri: uri, offset: { position: idx } },
           {
             headers: {
-              authorization: `Bearer ${localStorage.getItem("token")}`,
+              authorization: token,
             },
             params: {
               device_id,
             },
           }
         )
+        .then(() => getPlayerInfo())
         .catch((e) => {});
   };
 
@@ -198,6 +234,7 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             },
           }
         )
+        .then(() => getPlayerInfo())
         .catch((e) => {});
   };
 
@@ -237,14 +274,17 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
       play();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
+  }, [name2]);
 
-  if (!(webPlaybackSDKReady && player)) return <div>Loading...</div>;
+  if (!(webPlaybackSDKReady && device)) return <div>Loading...</div>;
+
+  const { name, album } = state.item || {};
+  const { url } = album?.images[0] || {};
 
   return (
     <>
       <div className="player__album">
-        {url || url2 ? <img src={url || url2} alt={name} /> : <span />}
+        {url ? <img src={url} alt={name} /> : <span />}
         <p title={name}>
           {name
             ? name.length > 10
@@ -281,15 +321,15 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
         <FontAwesomeIcon
           icon={faRandom}
           onClick={shuffle}
-          style={{ color: shuffled ? "blue" : null }}
+          style={{ color: state.shuffle_state ? "blue" : null }}
         />
         <FontAwesomeIcon
           icon={faRetweet}
           style={{
             color:
-              repeating === 1
+              state.repeat_mode === "track"
                 ? "blue"
-                : repeating === 2
+                : state.repeating === "context"
                 ? "green"
                 : null,
           }}
@@ -301,6 +341,7 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             setVolume(volume + 0.1 > 1 ? 0.1 : volume + 0.1);
           }}
         />
+        <p>{state.progress_ms}</p>
       </div>
     </>
   );
