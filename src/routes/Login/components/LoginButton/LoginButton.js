@@ -1,6 +1,6 @@
 import React from "react";
 import "./_button.scss";
-import config from "../../../../config";
+//import config from "../../../../config";
 
 const LoginButton = ({ children }) => {
   const url = `https://accounts.spotify.com/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri={process.env.REDIRECT_URL}&scope=user-library-modify
