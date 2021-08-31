@@ -1,5 +1,5 @@
 /* eslint-disable import/no-anonymous-default-export */
-export default {
+const config = {
   api: {
     baseUrl: "https://api.spotify.com/v1",
     authUrl: "https://accounts.spotify.com/api/token",
@@ -8,3 +8,5 @@ export default {
     redirectURL: "http://localhost:3000/login",
   },
 };
+
+export default config
