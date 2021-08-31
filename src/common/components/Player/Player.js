@@ -341,7 +341,6 @@ const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
             setVolume(volume + 0.1 > 1 ? 0.1 : volume + 0.1);
           }}
         />
-        <p>{state.progress_ms}</p>
       </div>
     </>
   );
