@@ -15,6 +15,7 @@
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",
     "classnames": "^2.3.1",
+    "dotenv": "^10.0.0",
     "node-sass": "^6.0.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -22,9 +23,7 @@
     "react-router": "^5.2.1",
     "react-router-dom": "^5.2.1",
     "react-scripts": "^4.0.3",
-    "react-spotify-web-playback": "^0.8.2",
-    "react-spotify-web-playback-sdk": "^2.0.0",
-    "use-spotify-web-playback-sdk": "^0.2.2"
+    "react-spotify-web-playback-sdk": "^2.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
