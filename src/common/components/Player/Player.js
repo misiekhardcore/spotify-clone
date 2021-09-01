@@ -11,36 +11,20 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import useSpotifyWebPlaybackSdk from "use-spotify-web-playback-sdk";
+import {
+  usePlayerDevice,
+  useSpotifyPlayer,
+  useWebPlaybackSDKReady,
+  WebPlaybackSDK,
+} from "react-spotify-web-playback-sdk";
 import config from "../../../config";
 import { setTrack } from "../../../redux/store";
 import "./_player.scss";
 
-export default function Player() {
+const PauseResumeButton = ({ volume, setVolume, dispatch }) => {
   const token = "Bearer " + localStorage.getItem("token");
-  const dispatch = useDispatch();
-
-  const {
-    Script: WebPlaybackSdkScript,
-    deviceId: device_id,
-    connect,
-    player, // https://developer.spotify.com/documentation/web-playback-sdk/reference/#api-spotify-player
-    isReady,
-  } = useSpotifyWebPlaybackSdk({
-    name: "My Spotify Player", // Device that shows up in the spotify devices list
-    getOAuthToken: () => Promise.resolve(localStorage.getItem("token")), // Wherever you get your access token from
-    onPlayerStateChanged: (playerState) => {
-      console.log("player state changed:", playerState);
-    },
-  });
-
-  useEffect(() => {
-    if (isReady) {
-      connect();
-    }
-  }, [isReady]);
 
   const [state, setState] = useState({
     device: {
@@ -98,10 +82,10 @@ export default function Player() {
   const [playing, setPlaying] = useState(false);
 
   // SDK Functions
-  // const player = useSpotifyPlayer();
-  // const device = usePlayerDevice();
-  // const webPlaybackSDKReady = useWebPlaybackSDKReady();
-  // const { device_id = "" } = device || {};
+  const player = useSpotifyPlayer();
+  const device = usePlayerDevice();
+  const webPlaybackSDKReady = useWebPlaybackSDKReady();
+  const { device_id = "" } = device || {};
 
   function getPlayerInfo() {
     if (token)
@@ -292,13 +276,13 @@ export default function Player() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name2]);
 
-  if (!(isReady && device_id)) return <div>Loading...</div>;
+  if (!(webPlaybackSDKReady && device)) return <div>Loading...</div>;
 
   const { name, album } = state.item || {};
   const { url } = album?.images[0] || {};
 
   return (
-    <WebPlaybackSdkScript>
+    <>
       <div className="player__album">
         {url ? <img src={url} alt={name} /> : <span />}
         <p title={name}>
@@ -354,39 +338,39 @@ export default function Player() {
         <FontAwesomeIcon
           icon={faVolumeDown}
           onClick={() => {
-            // setVolume(volume + 0.1 > 1 ? 0.1 : volume + 0.1);
+            setVolume(volume + 0.1 > 1 ? 0.1 : volume + 0.1);
           }}
         />
       </div>
-    </WebPlaybackSdkScript>
+    </>
+  );
+};
+
+export default function Player() {
+  const dispatch = useDispatch();
+
+  const [volume, setVolume] = useState(0.5);
+  const getOAuthToken = useCallback(
+    (callback) => callback(localStorage.getItem("token")),
+    []
+  );
+
+  return (
+    <div className="player">
+      <WebPlaybackSDK
+        deviceName="HurenNlListener"
+        playbackStateAutoUpdate={true}
+        connectOnInitialized={true}
+        playbackStateUpdateDuration_ms={1000}
+        getOAuthToken={getOAuthToken}
+        volume={volume}
+      >
+        <PauseResumeButton
+          volume={volume}
+          setVolume={setVolume}
+          dispatch={dispatch}
+        />
+      </WebPlaybackSDK>
+    </div>
   );
 }
-
-// export default function Player() {
-//   const dispatch = useDispatch();
-
-//   const [volume, setVolume] = useState(0.5);
-//   const getOAuthToken = useCallback(
-//     (callback) => callback(localStorage.getItem("token")),
-//     []
-//   );
-
-//   return (
-//     <div className="player">
-//       <WebPlaybackSDK
-//         deviceName="HurenNlListener"
-//         playbackStateAutoUpdate={true}
-//         connectOnInitialized={true}
-//         playbackStateUpdateDuration_ms={1000}
-//         getOAuthToken={getOAuthToken}
-//         volume={volume}
-//       >
-//         <PauseResumeButton
-//           volume={volume}
-//           setVolume={setVolume}
-//           dispatch={dispatch}
-//         />
-//       </WebPlaybackSDK>
-//     </div>
-//   );
-// }
